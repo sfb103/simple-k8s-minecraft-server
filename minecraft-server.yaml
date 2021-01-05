@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-server 
+  labels:
+    name: minecraft-server 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: minecraft-server 
+  template:
+    metadata:
+      labels:
+        name: minecraft-server 
+    spec:
+      volumes:
+      - hostPath:
+          path: /volumes/minecraft-home/server 
+        name: data 
+      containers:
+      - name: minecraft-server 
+        image: itzg/minecraft-server 
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          tcpSocket:
+            port: 25565 
+          initialDelaySeconds: 60
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /data 
+          name: data 
+        env:
+        - name: DIFFICULTY 
+          value: "easy"
+        - name: ALLOW_NETHER 
+          value: "true"
+        - name: MODE 
+          value: "creative"
+        - name: LEVEL 
+          value: "your-level-name"
+        - name: EULA 
+          value: "TRUE"
+        - name: OPS 
+          value: "your-userid-1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-server 
+  labels:
+    name: minecraft-server 
+spec:
+  ports:
+  - name: server-port-tcp
+    protocol: "TCP"
+    port: 25565
+    targetPort: 25565 
+    nodePort: 25565 
+  - name: server-port-udp
+    protocol: "UDP"
+    port: 25565
+    targetPort: 25565
+    nodePort: 25565
+  selector:
+    name: minecraft-server 
+  type: NodePort
+
